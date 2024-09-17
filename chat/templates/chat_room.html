@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+</head>
+<body>
+    <textarea id="chat-log" cols="100" rows="20" readonly></textarea><br>
+    <input type="text" id="chat-message-input" size="100">
+    <button id="chat-message-submit">Отправить</button>
+
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://127.0.0.1:8000/ws'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += ('[' + data.ip + ']: ' + data.message_key + '\n');
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const message_value = document.querySelector('#chat-message-input').value;
+            chatSocket.send(JSON.stringify({
+                'message_key': message_value
+            }));
+            document.querySelector('#chat-message-input').value = '';  // Очищаем поле ввода
+        };
+    </script>
+</body>
+</html>
